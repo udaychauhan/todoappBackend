@@ -8,11 +8,11 @@ const mongoose = require('mongoose'),
 let todoListSchema = new Schema({
     userId: {
         type: String,
-        default: '',
+        default: 'default',
     },
     userName: {
         type: String,
-        default: ''
+        default: 'default default'
     },
     todoListId: {
         type: String,

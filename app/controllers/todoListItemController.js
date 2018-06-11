@@ -96,7 +96,7 @@ let createToDoItem = (data, callback) => {
                 itemTitle: resolve.itemTitle,
                 itemDetail: resolve.itemDetail,
             }
-            console.log("Data for chnagelog " + JSON.stringify(cldata));
+            console.log("Data for add chnagelog " + JSON.stringify(cldata));
             //TODO NO CALLBACCK INCASE OF CHANGE LOG!
             changelogController.addToChangelog(cldata);
             //---change log
@@ -212,7 +212,7 @@ let deleteItem = (data, callback) => {
                 itemTitle: result.itemTitle,
                 itemDetail: result.itemDetail,
             }
-            console.log("Data for chnagelog " + JSON.stringify(cldata));
+            console.log("Data for delete chnagelog " + JSON.stringify(cldata));
             changelogController.addToChangelog(cldata);
             //----changelog
             callback(null, apiResponse);
@@ -236,13 +236,17 @@ let editItem = (data, callback) => {
     let todoListId = data.todoListId;
     let itemTitle = data.itemTitle;
     let itemDetail = data.itemDetail;
+    let prevItemTitle = data.prevItemTitle;
+    let prevItemDetail = data.prevItemDetail;
 
-    let options = req.body;
+    let options = data;
     console.log(options);
 
+    let originName = "todlistitemcontroller : edit todo list item";
     ToDoListItem.update(
         {
-            'itemId': itemId
+            'itemId': itemId,
+            'todoListId' : todoListId
         }, options,
         {
             multi: true
@@ -259,7 +263,24 @@ let editItem = (data, callback) => {
                 let apiResponse = response.generate(true, 'No Item Found', 404, null)
                 callback(apiResponse, null);
             } else {
-                let apiResponse = response.generate(false, 'Item Edited Successfully', 200, resolve)
+                let apiResponse = response.generate(false, 'Item Edited Successfully', 
+                200, result)
+                
+                //---- changelog start
+                //here result also doesn't contains data
+                let cldata = {
+                    type: "EDIT",
+                    todoListId: data.todoListId,
+                    userId: data.userId,
+                    userName: data.userName,
+                    itemId: data.itemId,
+                    itemTitle: data.prevItemTitle,
+                    itemDetail: data.prevItemDetail,
+                }
+                console.log("Data for edit chnagelog " + JSON.stringify(cldata));
+                changelogController.addToChangelog(cldata);
+                //----changelog
+                //---- changelog end
                 callback(null, apiResponse);
 
             }

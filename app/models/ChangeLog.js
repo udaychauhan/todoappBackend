@@ -26,11 +26,11 @@ let changeLogSchema = new Schema({
     },
     clUserId: {
         type: String,
-        default: '',
+        default: 'default',
     },
     clUserName: {
         type: String,
-        default: ''
+        default: 'default'
     },
     clTodoListId: {
         type: String,

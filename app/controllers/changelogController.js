@@ -208,6 +208,31 @@ let handleUndoAction = (data,callback) => {
             console.log(JSON.stringify(data));
         }
 
+        if(type === "EDIT"){
+            editItemFromChangelog(data,(err,result)=>{
+                if(err){
+                    deleteChangelog(data,(err,result)=>{
+                        if(err){
+                            console.log(err);
+                        }else{
+                            console.log(result);
+                        }
+                    });
+                    callback(err,null);
+                }else{
+                    deleteChangelog(data,(err,result)=>{
+                        if(err){
+                            console.log(err);
+                        }else{
+                            console.log(result);
+                        }
+                    });
+                    callback(null,result);
+                }
+            });
+            console.log(JSON.stringify(data));
+        }
+
     }else{
         //throw error in callback
     }
@@ -342,7 +367,7 @@ let deleteItemFromChangelog = (data, callback) => {
         })
     } 
 
-    let deletelog = () =>{
+    let deleteitem = () =>{
         return new Promise((resolve, reject) => {
             ToDoListItem.findOneAndRemove({ 'itemId': itemId }).exec((err, result) => {
                 if (err) {
@@ -370,7 +395,7 @@ let deleteItemFromChangelog = (data, callback) => {
     }
 
     validateParams()
-    .then(deletelog)
+    .then(deleteitem)
     .then((result) => {
         let apiResponse = response.generate(false, 'Deleted the Item successfully', 200,
                         result)
@@ -381,6 +406,48 @@ let deleteItemFromChangelog = (data, callback) => {
     })
 
    
+
+}
+
+let editItemFromChangelog = (data,callback) =>{
+    let itemId = data.itemId;
+    let userId = data.userId;
+    let userName = data.userName;
+    let todoListId = data.todoListId;
+    let itemTitle = data.itemTitle;
+    let itemDetail = data.itemDetail;
+
+    let options = data;
+    console.log(options);
+    let originName = "changelog controller ; edit item from changelog"
+    ToDoListItem.update(
+        {
+            'itemId': itemId,
+            'todoListId':todoListId
+        }, options,
+        {
+            multi: true
+        },
+        (err, result) => {
+
+            if (err) {
+                logger.error(err.message, originName, 10);
+                let apiResponse = response.generate(true,
+                    err.message, 500, null);
+                callback(apiResponse, null);
+            } else if (result == undefined || result == null || result == '') {
+                logger.info('No Item Found', originName)
+                let apiResponse = response.generate(true, 'No Item Found', 404, null)
+                callback(apiResponse, null);
+            } else {
+                let apiResponse = response.generate(false, 'Item Edited Successfully',
+                 200, result)
+                callback(null, apiResponse);
+
+            }
+        }
+
+    );
 
 }
 

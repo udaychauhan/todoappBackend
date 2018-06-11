@@ -107,6 +107,7 @@ let loginFunction = (req, res) => {
     //check if user exists
     //check if password matched
     //send success or error
+    console.log( "login function");
     let findUser = () => {
         console.log("findUser");
         return new Promise((resolve, reject) => {

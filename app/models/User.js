@@ -14,11 +14,11 @@ let userSchema = new Schema({
   },
   firstName: {
     type: String,
-    default: ''
+    default: 'default'
   },
   lastName: {
     type: String,
-    default: ''
+    default: 'default'
   },
   password: {
     type: String,
@@ -26,7 +26,7 @@ let userSchema = new Schema({
   },
   emailId: {
     type: String,
-    default: ''
+    default: 'defaultemail@default.com'
   },
   countryCode : {
     type : Number,

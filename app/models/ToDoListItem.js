@@ -10,27 +10,19 @@ let todoListItemSchema = new Schema({
     //can be of any user who has access to that todolist
     userId : {
         type : String,
-        default : ''
+        default : 'default'
     },
     userName : {
         type : String,
-        default : ""
+        default : "default default"
     },
     todoListId: {
         type: String,
-        default: '',
+        default: 'default',
     },
     todoListName: {
         type: String,
         default: 'No Name'
-    },
-    parentItemId: {
-        type: String,
-        default: '',
-    },
-    parentItemTitle: {
-        type: String,
-        default: '',
     },
     itemId: {
         type: String,
