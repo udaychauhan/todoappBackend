@@ -25,7 +25,7 @@ let sendMail = (receiverDetails , cb) => {
         to: receiverEmailId, // list of receivers
         subject: 'Password Reset Url', // Subject line
         html: `<p>Reset Password Link.</p>
-        <p>localhost:4200/changepassword/${receiverChangePassToken}</p>
+        <p>http://todoapp.udaychauhan.info/changepassword/${receiverChangePassToken}</p>
         `// plain text body
     };
 
