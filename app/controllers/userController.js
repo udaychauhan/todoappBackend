@@ -107,7 +107,7 @@ let loginFunction = (req, res) => {
     //check if user exists
     //check if password matched
     //send success or error
-    console.log( "login function");
+    console.log("login function");
     let findUser = () => {
         console.log("findUser");
         return new Promise((resolve, reject) => {
@@ -355,6 +355,56 @@ let forgotPassword = (req, res) => {
 
 } // end of the forgot password function.
 
+let sendContactInfo = (req, res) => {
+
+    let checkHiddenField = () => {
+        console.log("hidden Field");
+        return new Promise((resolve, reject) => {
+            let hiddenField = req.body.hiddenField;
+            if (!check.isEmpty(hiddenField)) {
+                logger.error('Spam attempt as hidden field is filled', 'userController: send contact info()', 10)
+                let apiResponse = response.generate(true, "Message not send", 500, null);
+                reject(apiResponse);
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    let sendContactInfoMail = () =>{
+        return new Promise((resolve, reject) => {
+            let senderDetails = {
+                senderEmailId: req.body.emailId,
+                senderMessage: req.body.message,
+            }
+            nodemailer.sendContactInfo(send, (err, result) => {
+              
+                if (err) {
+                    let apiResponse = response.generate(true, err.message, 500, null);
+                    reject(apiResponse);
+                } else {
+                    let apiResponse = response.generate(false, "Mail Sent." + result, 200, null);
+                    resolve(apiResponse);
+                }
+            });
+        
+        });
+    
+    }
+
+    checkHiddenField(req, res)
+    .then(sendContactInfo)
+    .then((resolve) => {
+        res.send(resolve);
+    })
+    .catch((err) => {
+        console.log("errorhandler");
+        console.log(err);
+        res.send(err)
+    })
+  
+} // end of the send Contact function.
+
 let changePassword = (req, res) => {
     //see if token is valid
     //if valid token then extract email id from it
@@ -464,7 +514,7 @@ let addToFriendRequest = (req, res) => {
     let validateParams = () => {
         return new Promise((resolve, reject) => {
 
-            if (check.isEmpty(req.body.senderId) || check.isEmpty(req.body.receiverId) ) {
+            if (check.isEmpty(req.body.senderId) || check.isEmpty(req.body.receiverId)) {
                 logger.info('parameters missing', originName, 9)
                 let apiResponse = response.generate(true, 'User Id Missing', 403, null)
                 reject(apiResponse);
@@ -476,10 +526,10 @@ let addToFriendRequest = (req, res) => {
 
     //first check if both user IDs from request are 
     //already sender & receiver or receiver & sender
-     //if yes then throw error that friend request already exist
+    //if yes then throw error that friend request already exist
     //if no make one
     let checkIfFriendRequest = (senderId, receiverId) => {
-       return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             console.log(originName + " chceking if freind request exists or not");
             let findQuery = {
                 $or: [
@@ -497,31 +547,31 @@ let addToFriendRequest = (req, res) => {
                     }
                 ]
             }
-            FriendRequestModel.findOne(findQuery ,(err,result)=>{
-                if(err){
-                     logger.error('Failed To Retrieve friend request Data',originName, 10)
-                    let apiResponse = response.generate(true, 
+            FriendRequestModel.findOne(findQuery, (err, result) => {
+                if (err) {
+                    logger.error('Failed To Retrieve friend request Data', originName, 10)
+                    let apiResponse = response.generate(true,
                         'Failed To Retrieve friend request Data', 500, null)
                     reject(apiResponse);
-                }else{
+                } else {
                     //friend request does not exist
-                    if(check.isEmpty(result)){
+                    if (check.isEmpty(result)) {
                         console.log(req.body);
                         //create new user
                         let newFriend = new FriendRequestModel({
                             friendRequestId: shortid.generate(),
-                            senderId : req.body.senderId,
-                            senderUsername : req.body.senderUsername,
-                            receiverId : req.body.receiverId,
-                            receiverUsername : req.body.receiverUsername,
-                            status : 1//as we are creating new pending request
+                            senderId: req.body.senderId,
+                            senderUsername: req.body.senderUsername,
+                            receiverId: req.body.receiverId,
+                            receiverUsername: req.body.receiverUsername,
+                            status: 1//as we are creating new pending request
                         });
                         //save new friend request
                         newFriend.save((err, newFriendRequest) => {
                             if (err) {
                                 console.log(err)
                                 logger.error(err.message, originName, 10)
-                                let apiResponse = response.generate(true, 
+                                let apiResponse = response.generate(true,
                                     'Failed to create new Friend request', 500, null)
                                 reject(apiResponse)
                             } else {
@@ -530,10 +580,10 @@ let addToFriendRequest = (req, res) => {
                             }
                         });
 
-                    //friend request already exist    
-                    }else{
+                        //friend request already exist    
+                    } else {
                         logger.error('Friend Request Cannot Be Created Already Present', originName, 4)
-                        let apiResponse = response.generate(true,'Friend Request Cannot Be Created.Already Present', 403, null)
+                        let apiResponse = response.generate(true, 'Friend Request Cannot Be Created.Already Present', 403, null)
                         reject(apiResponse);
                     }
                 }
@@ -542,18 +592,18 @@ let addToFriendRequest = (req, res) => {
         });
     }
 
-    validateParams(req,res)
-    .then( checkIfFriendRequest)
-    .then((resolve) => {
-       let apiResponse = response.generate(false, 'Friend Request created', 200, resolve)
-       res.send(apiResponse)
-    })
-    .catch((err) => {
-        console.log(err);
-        res.send(err);
-    })
+    validateParams(req, res)
+        .then(checkIfFriendRequest)
+        .then((resolve) => {
+            let apiResponse = response.generate(false, 'Friend Request created', 200, resolve)
+            res.send(apiResponse)
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send(err);
+        })
 
-   
+
 
 }//end add to friend request
 
@@ -570,7 +620,7 @@ let acceptFriendRequest = (req, res) => {
     let validateParams = () => {
         return new Promise((resolve, reject) => {
 
-            if (check.isEmpty(req.body.senderId) || check.isEmpty(req.body.receiverId) ) {
+            if (check.isEmpty(req.body.senderId) || check.isEmpty(req.body.receiverId)) {
                 logger.info('parameters missing', originName, 9)
                 let apiResponse = response.generate(true, 'sender or receiver Id Missing', 403, null)
                 reject(apiResponse);
@@ -582,10 +632,10 @@ let acceptFriendRequest = (req, res) => {
 
     //first check if both user IDs from request are 
     //already sender & receiver or receiver & sender
-     //if yes then throw error that friend request already exist
+    //if yes then throw error that friend request already exist
     //if no make one
     let editFriendRequest = (senderId, receiverId) => {
-       return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             console.log(originName + " chceking if freind request exists or not");
 
             let findQuery = {
@@ -605,42 +655,43 @@ let acceptFriendRequest = (req, res) => {
                 ]
             }
             let options = {
-                status : 2
+                status: 2
             }
             FriendRequestModel.update(
                 findQuery, options,
                 {
                     multi: true
                 },
-                (err, result) => { if (err) {
-                    logger.error(err.message, originName, 10);
-                    let apiResponse = response.generate(true,
-                        err.message, 500, null);
-                    reject(apiResponse);
-                } else if (result == undefined || result == null || result == '') {
-                    logger.info('No Friend request Found', originName)
-                    let apiResponse = response.generate(true, 'No Friend request Found', 404, null)
-                    reject(apiResponse);
-                } else {
-                    let apiResponse = response.generate(false, 'Friend request accepted', 200, resolve)
-                   resolve(result)
-    
-                }
-            });//edit funct end
+                (err, result) => {
+                    if (err) {
+                        logger.error(err.message, originName, 10);
+                        let apiResponse = response.generate(true,
+                            err.message, 500, null);
+                        reject(apiResponse);
+                    } else if (result == undefined || result == null || result == '') {
+                        logger.info('No Friend request Found', originName)
+                        let apiResponse = response.generate(true, 'No Friend request Found', 404, null)
+                        reject(apiResponse);
+                    } else {
+                        let apiResponse = response.generate(false, 'Friend request accepted', 200, resolve)
+                        resolve(result)
+
+                    }
+                });//edit funct end
         });
     }
 
 
-    validateParams(req,res)
-    .then( editFriendRequest)
-    .then((resolve) => {
-       let apiResponse = response.generate(false, 'Friend Request created', 200, resolve)
-       res.send(apiResponse)
-    })
-    .catch((err) => {
-        console.log(err);
-        res.send(err);
-    })
+    validateParams(req, res)
+        .then(editFriendRequest)
+        .then((resolve) => {
+            let apiResponse = response.generate(false, 'Friend Request created', 200, resolve)
+            res.send(apiResponse)
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send(err);
+        })
 
 }//end accept friend request
 
@@ -683,14 +734,14 @@ let getFriendRequest = (req, res) => {
                     }
                 ]
             }
-           
+
 
             FriendRequestModel.find(findQuery)
                 .select('-_id -__v')
                 .sort('-createdOn')
-                
+
                 .lean()
-                
+
                 .exec((err, result) => {
                     if (err) {
                         console.log(err)
@@ -714,7 +765,7 @@ let getFriendRequest = (req, res) => {
         .then(findChats)
         .then((result) => {
             let apiResponse = response.generate(false, 'All Friend Request Listed', 200, result)
-           res.send(apiResponse);
+            res.send(apiResponse);
         })
         .catch((error) => {
             res.send(error);
@@ -724,13 +775,13 @@ let getFriendRequest = (req, res) => {
 
 }//-- end get friend request
 
-let areFriends= (req,res) =>{
+let areFriends = (req, res) => {
     console.log(req.body);
     let originName = "user controller : add to freind request";
     let validateParams = () => {
         return new Promise((resolve, reject) => {
 
-            if (check.isEmpty(req.body.senderId) || check.isEmpty(req.body.receiverId) ) {
+            if (check.isEmpty(req.body.senderId) || check.isEmpty(req.body.receiverId)) {
                 logger.info('parameters missing', originName, 9)
                 let apiResponse = response.generate(true, 'User Id Missing', 403, null)
                 reject(apiResponse);
@@ -742,10 +793,10 @@ let areFriends= (req,res) =>{
 
     //first check if both user IDs from request are 
     //already sender & receiver or receiver & sender
-     //if yes then throw error that friend request already exist
+    //if yes then throw error that friend request already exist
     //if no make one
     let checkIfFriendRequest = (senderId, receiverId) => {
-       return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             console.log(originName + " chceking if freind request exists or not");
             let findQuery = {
                 $or: [
@@ -765,21 +816,21 @@ let areFriends= (req,res) =>{
                     }
                 ]
             }
-            FriendRequestModel.findOne(findQuery ,(err,result)=>{
-                if(err){
-                     logger.error('Failed To Retrieve friend request Data',originName, 10)
-                    let apiResponse = response.generate(true, 
+            FriendRequestModel.findOne(findQuery, (err, result) => {
+                if (err) {
+                    logger.error('Failed To Retrieve friend request Data', originName, 10)
+                    let apiResponse = response.generate(true,
                         'Failed To Retrieve friend request Data', 500, null)
                     reject(apiResponse);
-                }else{
+                } else {
                     //are not friends does not exist
-                    if(check.isEmpty(result)){
+                    if (check.isEmpty(result)) {
                         console.log(req.body);
                         logger.error('Are not friends', originName, 4)
-                        let apiResponse = response.generate(true,'Are not friends', 403, null)
+                        let apiResponse = response.generate(true, 'Are not friends', 403, null)
                         reject(apiResponse);
-                    //are friends     
-                    }else{
+                        //are friends     
+                    } else {
                         resolve(result);
                     }
                 }
@@ -788,16 +839,16 @@ let areFriends= (req,res) =>{
         });
     }
 
-    validateParams(req,res)
-    .then( checkIfFriendRequest)
-    .then((resolve) => {
-       let apiResponse = response.generate(false, 'Both users are friends', 200, resolve)
-       res.send(apiResponse)
-    })
-    .catch((err) => {
-        console.log(err);
-        res.send(err);
-    })
+    validateParams(req, res)
+        .then(checkIfFriendRequest)
+        .then((resolve) => {
+            let apiResponse = response.generate(false, 'Both users are friends', 200, resolve)
+            res.send(apiResponse)
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send(err);
+        })
 
 }//end of are freinds
 
@@ -805,11 +856,12 @@ module.exports = {
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
     forgotpasswordFunction: forgotPassword,
+    sendContactInfoFunction: sendContactInfo,
     changepasswordFunction: changePassword,
     logout: logout,
     getAllUser: getAllUser,
     addToFriendRequest: addToFriendRequest,
     acceptFriendRequest: acceptFriendRequest,
     getFriendRequest: getFriendRequest,
-    areFriends:areFriends
+    areFriends: areFriends
 }// end exports

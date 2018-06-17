@@ -13,7 +13,7 @@ module.exports.setRouter = (app) => {
     //params : authtoken
     app.get(`${baseUrl}/view/all`, auth.isAuthorized, userController.getAllUser);
      /**
-	* @api {get} /api/v1/user/view/all Get all users
+	* @api {get} /api/v1/users/view/all Get all users
 	* @apiVersion 0.0.1
 	* @apiGroup  User
 	*
@@ -35,7 +35,7 @@ module.exports.setRouter = (app) => {
     // params: firstName, lastName, email, countryCode,phoneNumber, password
     app.post(`${baseUrl}/signup`, userController.signUpFunction);
     /**
-	* @api {post} /api/v1/user/signup Create New  User
+	* @api {post} /api/v1/users/signup Create New  User
 	* @apiVersion 0.0.1
 	* @apiGroup  User
 	*
@@ -203,6 +203,9 @@ module.exports.setRouter = (app) => {
         }
     */
 
+    // send contact api
+    app.post(`${baseUrl}/sendContactInfo`, userController.sendContactInfoFunction);
+    // send contact api end
     app.post(`${baseUrl}/forgotpassword`, userController.forgotpasswordFunction);
     /**
     * @apiGroup users
@@ -250,7 +253,286 @@ module.exports.setRouter = (app) => {
        }
    */   
 
-    // auth token params: userId.
-    app.post(`${baseUrl}/logout`, userController.logout);
+    // // auth token params: userId.
+    // app.post(`${baseUrl}/logout`, userController.logout);
 
 }
+
+//--------------------- for LISTENER AND EMITTERS
+ /**
+    * @apiGroup Listen Events
+    * @apiVersion  1.0.0
+    * @api {post}  Listen From server.
+    *
+    * @apiParam {string} verifyUser 
+    * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+    * 
+    * @apiSuccessExample {object} Object-Received:
+    * //--verifyUser
+       obj = {
+            message: 'Socket Connected',
+        }
+    * 
+    * @apiParam {string} errorEvent 
+    * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+    * 
+     * @apiSuccessExample {object} Object-Received:
+    * //--errorEvent
+       "a message string"
+    *
+    * @apiParam {string} onlineUserList 
+    * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+    * 
+     * @apiSuccessExample {object} Object-Received:
+    * //--onlineUserList
+        obj = {
+                        message: string,
+                        sendBy: string,
+                        list: [{ userId: currentUser.userId, fullName: fullName }]
+    *          }
+
+    * @apiParam {string} broadcastMessage 
+    * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+    * 
+     * @apiSuccessExample {object} Object-Received:
+    * //--BROADCAST MESSAGE
+           let data = {
+      broadcastMessageBy: this.userId,
+      broadcastMessageByName: this.userName,
+      broadcastMessageFor: array of  friendsObj = {
+          messageForUserId: friendId,
+          messageForUsername: friendName
+        },
+      broadcastMessage: this.friendchangeitems,
+      //to be used when we edit,add,delete items and undo changelog
+      //ADD,DELETE,EDIT,UNDO
+      broadcastMessageListId: this.todoListId,
+      broadcastMessageItemId: "",
+      broadcastMessageActionType: type
+    }
+
+    * @apiParam {string} disconnect 
+    * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+    * 
+     * @apiSuccessExample {object} Object-Received:
+    * //--DISCONNECTED SOCKET
+      
+     * @apiParam {string} generalTodoListAction 
+    * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+    * 
+     * @apiSuccessExample {object} Object-Received:
+    * //--IMPORTANT LISTENER FOR ALL ACTION WITH TODO ITEMS OR LIST OR CHANGELOG
+        let data = {
+                        type : "todoListCreated",
+                        message : err
+                    }
+        socket.emit('generalTodoListAction', data);
+
+        let data = {
+                        type : "todoListCreated",
+                        message : result
+                    }
+        socket.emit('generalTodoListAction', data);
+
+        let data = {
+                        type : "allTodoList",
+                        message : err
+                    }
+        socket.emit('generalTodoListAction', data);
+
+        let data = {
+                        type : "allTodoList",
+                        message : result
+                    }
+        socket.emit('generalTodoListAction', data);
+
+        let data = {
+                        type : "todoListDeleted",
+                        message : err
+                    }
+        socket.emit('generalTodoListAction', data);
+        
+         let data = {
+                        type : "todoListDeleted",
+                        message : result
+                    }
+        socket.emit('generalTodoListAction', data);
+
+         let data = {
+                        type : "todoItemCreated",
+                        message : err
+                    }
+                    socket.emit('generalTodoListAction', data);
+        let data = {
+                        type : "todoItemCreated",
+                        message : result
+                    }
+                    socket.emit('generalTodoListAction', data);
+        let data = {
+                        type : "todoItemDeleted",
+                        message : err
+                    }
+                    socket.emit('generalTodoListAction', data);
+        let data = {
+                        type : "todoItemDeleted",
+                        message : result
+                    }
+                    socket.emit('generalTodoListAction', data);
+        let data = {
+                        type : "allTodoItems",
+                        message : err
+                    }
+                    socket.emit('generalTodoListAction', data);
+         let data = {
+                        type : "allTodoItems",
+                        message : result
+                    }
+                    socket.emit('generalTodoListAction', data);
+           let data = {
+                        type : "editListItem",
+                        message : err
+                    }
+                    socket.emit('generalTodoListAction', data);
+          let data = {
+                        type : "editListItem",
+                        message : result
+                    }
+                    socket.emit('generalTodoListAction', data);          
+
+    */
+   
+    /**
+    * @apiGroup Emit Events
+    * @apiVersion  1.0.0
+    * @api {post}  Send From Front End.
+    *
+    * @apiParam {string} setUser 
+   
+    * 
+    * @apiSuccessExample {object} Object-Sent:
+    * //--setUser
+       obj = {
+            authToken: string,
+            userId : string
+        }
+    * 
+    * @apiParam {string} getAllTodoList
+   
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //--get all todo list
+        obj = {
+                       
+                        userId: string,
+                        
+              }
+    *  
+    * @apiParam {string} getAllTodoItems
+  
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- Get all todo items
+        obj = {
+                        userId: string,
+                        todoListId : string                       
+              }
+    * 
+    *  
+     
+    * @apiParam {string} getAllChangelog 
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- Get all change log items
+        obj = {
+                        userId: string,
+                        todoListId : string                       
+              }
+    * 
+    *  
+    * @apiParam {string} undoChangelog 
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- UNDO change log items
+        obj = {
+                        userId: string,
+                        todoListId : string                       
+              }
+    * 
+    * 
+    * @apiParam {string} createNewTodoList 
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- CREATE NEW TODO LIST 
+       let data = {
+            userId: this.userId,
+             userName: this.userName,
+             todoListTitle: this.todoListTitle
+            }
+    * 
+    * 
+    * @apiParam {string} createNewTodoItem 
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- CREATE TODO ITEM 
+        let data = {
+                 userId: this.userId,
+                 userName: this.userName,
+                 todoListId : this.todoListId,
+                 itemTitle: this.todoItemTitle,
+                 itemDetail: this.todoItemDetail
+     
+    }
+   
+    * @apiParam {string} deleteTodoItem
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- DELETE TODO ITEM 
+    *       let data = {
+                 userId: this.userId,
+                 userName: this.userName,
+                 todoListId : this.todoListId,
+                 itemTitle: this.todoItemTitle,
+                 itemDetail: this.todoItemDetail,
+                 itemId : toBeDeletedItemId
+    }
+    *  
+    * @apiParam {string} editListItem 
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- EDIT TODO ITEM 
+    *          let data = {
+      userId: this.userId,
+      userName: this.userName,
+      todoListId: this.todoListId,
+      itemId: this.itemId,
+      itemTitle: this.itemTitle,
+      itemDetail: this.itemDetail,
+      prevItemTitle: this.prevItemTitle,
+      prevItemDetail: this.prevItemDetail
+    }
+
+    *
+    * 
+     * @apiParam {string} broadcastMessage 
+    * 
+    * @apiSuccessExample {object} Object-Send:
+    * //-- BROADCAST ITEM CHANGE
+    *         let data = {
+      broadcastMessageBy: this.userId,
+      broadcastMessageByName: this.userName,
+      broadcastMessageFor: array of  friendsObj = {
+          messageForUserId: friendId,
+          messageForUsername: friendName
+        },
+      broadcastMessage: this.friendchangeitems,
+      //to be used when we edit,add,delete items and undo changelog
+      //ADD,DELETE,EDIT,UNDO
+      broadcastMessageListId: this.todoListId,
+      broadcastMessageItemId: "",
+      broadcastMessageActionType: type
+    }
+
+    *  
+       
+   
+    */   
