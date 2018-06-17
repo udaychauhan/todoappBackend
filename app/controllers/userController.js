@@ -377,7 +377,7 @@ let sendContactInfo = (req, res) => {
                 senderEmailId: req.body.emailId,
                 senderMessage: req.body.message,
             }
-            nodemailer.sendContactInfo(send, (err, result) => {
+            nodemailer.sendContactInfo(senderDetails, (err, result) => {
               
                 if (err) {
                     let apiResponse = response.generate(true, err.message, 500, null);
