@@ -374,13 +374,13 @@ let sendContactInfo = (req, res) => {
     let sendContactInfoMail = () =>{
         return new Promise((resolve, reject) => {
             let senderDetails = {
-                senderEmailId: req.body.emailId,
-                senderMessage: req.body.message,
+                emailId: req.body.emailId,
+                message: req.body.message,
             }
             nodemailer.sendContactInfo(senderDetails, (err, result) => {
               
                 if (err) {
-                    let apiResponse = response.generate(true, err.message, 500, null);
+                    let apiResponse = response.generate(true, err, 500, null);
                     reject(apiResponse);
                 } else {
                     let apiResponse = response.generate(false, "Mail Sent." + result, 200, null);
